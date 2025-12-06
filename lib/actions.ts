@@ -4,7 +4,7 @@ import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-export async function createWidget(formData: FormData) {
+export async function createWidget(formData: FormData): Promise<void> {
     const name = formData.get('name') as string
     const companyName = formData.get('companyName') as string
 
