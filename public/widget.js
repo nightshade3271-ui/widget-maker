@@ -138,12 +138,25 @@
   document.head.appendChild(styleSheet);
 
   // Initialize
+  console.log('WidgetMaker: Initializing...', { widgetId, API_BASE });
+  // alert('WidgetMaker: Starting init for ' + widgetId); // Uncomment if console is hidden
+
   fetch(`${API_BASE}/api/widget/${widgetId}`, { mode: 'cors', credentials: 'omit' })
-    .then(res => res.json())
+    .then(res => {
+      console.log('WidgetMaker: Fetch response', res.status);
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status} ${res.statusText}`);
+      }
+      return res.json();
+    })
     .then(config => {
+      console.log('WidgetMaker: Config loaded', config);
       initWidget(config);
     })
-    .catch(err => console.error('Failed to load widget config', err));
+    .catch(err => {
+      console.error('WidgetMaker: Failed to load config', err);
+      // alert('WidgetMaker Error: ' + err.message);
+    });
 
   function initWidget(config) {
     const container = document.createElement('div');
