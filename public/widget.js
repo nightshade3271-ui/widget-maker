@@ -1,12 +1,14 @@
-(function () {
-  const script = document.currentScript || document.querySelector('script[data-widget-id]');
-  const widgetId = script?.getAttribute('data-widget-id');
-  const API_BASE = script ? new URL(script.src).origin : 'https://widget-maker.vercel.app'; // Fallback to production URL if script tag not found
 
-  if (!widgetId) {
-    console.error('WidgetMaker: data-widget-id is required');
-    return;
-  }
+console.log('WidgetMaker: SCRIPT START');
+// alert('WidgetMaker: Script Loaded!'); 
+
+const script = document.currentScript || document.querySelector('script[data-widget-id]');
+const widgetId = script?.getAttribute('data-widget-id');
+const API_BASE = script ? new URL(script.src).origin : 'https://widget-maker.vercel.app';
+
+if (!widgetId) {
+  console.error('WidgetMaker: data-widget-id is required');
+} else {
 
   // Styles
   const styles = `
@@ -14,7 +16,7 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      z-index: 9999;
+      z-index: 2147483647; /* Max Z-Index */
       font-family: 'Inter', system-ui, sans-serif;
     }
     .wm-launcher {
@@ -139,7 +141,6 @@
 
   // Initialize
   console.log('WidgetMaker: Initializing...', { widgetId, API_BASE });
-  // alert('WidgetMaker: Starting init for ' + widgetId); // Uncomment if console is hidden
 
   fetch(`${API_BASE}/api/widget/${widgetId}`, { mode: 'cors', credentials: 'omit' })
     .then(res => {
@@ -155,7 +156,6 @@
     })
     .catch(err => {
       console.error('WidgetMaker: Failed to load config', err);
-      // alert('WidgetMaker Error: ' + err.message);
     });
 
   function initWidget(config) {
@@ -278,5 +278,4 @@
       return id;
     }
   }
-
-})();
+}
