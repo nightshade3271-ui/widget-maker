@@ -138,7 +138,7 @@
   document.head.appendChild(styleSheet);
 
   // Initialize
-  fetch(`${API_BASE}/api/widget/${widgetId}`)
+  fetch(`${API_BASE}/api/widget/${widgetId}`, { mode: 'cors', credentials: 'omit' })
     .then(res => res.json())
     .then(config => {
       initWidget(config);
