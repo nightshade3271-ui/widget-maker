@@ -1,7 +1,7 @@
 (function () {
-  const script = document.currentScript;
-  const widgetId = script.getAttribute('data-widget-id');
-  const API_BASE = new URL(script.src).origin; // Dynamically determine API base from script location
+  const script = document.currentScript || document.querySelector('script[data-widget-id]');
+  const widgetId = script?.getAttribute('data-widget-id');
+  const API_BASE = script ? new URL(script.src).origin : 'https://widget-maker.vercel.app'; // Fallback to production URL if script tag not found
 
   if (!widgetId) {
     console.error('WidgetMaker: data-widget-id is required');
