@@ -1,0 +1,61 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Widget {
+  id            String   @id @default(cuid())
+  name          String
+  companyName   String   @default("My Company")
+  description   String?
+  welcomeMessage String  @default("Hello! How can I help you today?")
+  systemPrompt  String   @default("You are a helpful assistant.")
+  primaryColor  String   @default("#8b5cf6")
+  secondaryColor String  @default("#64748b")
+  ownerEmail    String?
+  
+  faqs          FAQ[]
+  conversations Conversation[]
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  widgetId  String
+  widget    Widget   @relation(fields: [widgetId], references: [id], onDelete: Cascade)
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  widgetId  String
+  widget    Widget    @relation(fields: [widgetId], references: [id], onDelete: Cascade)
+  messages  Message[]
+  userEmail String?
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String
+  content        String
+  
+  createdAt      DateTime     @default(now())
+}
+
+model SystemSettings {
+  id             String @id @default("default")
+  openRouterKey  String?
+  defaultModel   String @default("google/gemini-2.0-flash-001")
+}
