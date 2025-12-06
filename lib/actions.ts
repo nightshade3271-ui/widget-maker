@@ -8,7 +8,7 @@ export async function createWidget(formData: FormData) {
     const name = formData.get('name') as string
     const companyName = formData.get('companyName') as string
 
-    if (!name) return { error: 'Name is required' }
+    if (!name) throw new Error('Name is required')
 
     const widget = await db.widget.create({
         data: {
@@ -41,7 +41,7 @@ export async function createFAQ(widgetId: string, formData: FormData) {
     const question = formData.get('question') as string
     const answer = formData.get('answer') as string
 
-    if (!question || !answer) return { error: 'Question and Answer are required' }
+    if (!question || !answer) throw new Error('Question and Answer are required')
 
     await db.fAQ.create({
         data: {
