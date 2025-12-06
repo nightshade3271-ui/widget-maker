@@ -37,6 +37,12 @@ export async function updateWidget(id: string, formData: FormData) {
     revalidatePath(`/dashboard/${id}`)
 }
 
+export async function deleteWidget(id: string) {
+    await db.widget.delete({ where: { id } })
+    revalidatePath('/dashboard')
+    redirect('/dashboard')
+}
+
 export async function createFAQ(widgetId: string, formData: FormData) {
     const question = formData.get('question') as string
     const answer = formData.get('answer') as string

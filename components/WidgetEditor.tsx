@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Button, Input, Label, Textarea } from '@/components/ui-elements'
-import { updateWidget, createFAQ, deleteFAQ } from '@/lib/actions'
+import { updateWidget, createFAQ, deleteFAQ, deleteWidget } from '@/lib/actions'
 import { Widget, FAQ } from '@prisma/client'
 import { Save, MessageSquare, Code, Settings, Trash2, BarChart } from 'lucide-react'
 import clsx from 'clsx'
@@ -88,51 +88,72 @@ function TabButton({ active, onClick, icon, label }: any) {
 
 function SettingsForm({ widget }: { widget: any }) {
     return (
-        <form action={updateWidget.bind(null, widget.id)} className="glass-panel fade-in" style={{ padding: 24 }}>
-            <input type="hidden" name="id" value={widget.id} />
+        <div className="glass-panel fade-in" style={{ padding: 24 }}>
+            <form action={updateWidget.bind(null, widget.id)}>
+                <input type="hidden" name="id" value={widget.id} />
 
-            <div style={{ marginBottom: 20 }}>
-                <Label>Bot Name</Label>
-                <Input name="name" defaultValue={widget.name} />
-            </div>
+                <div style={{ marginBottom: 20 }}>
+                    <Label>Bot Name</Label>
+                    <Input name="name" defaultValue={widget.name} />
+                </div>
 
-            <div style={{ marginBottom: 20 }}>
-                <Label>Company Name</Label>
-                <Input name="companyName" defaultValue={widget.companyName} />
-            </div>
+                <div style={{ marginBottom: 20 }}>
+                    <Label>Company Name</Label>
+                    <Input name="companyName" defaultValue={widget.companyName} />
+                </div>
 
-            <div style={{ marginBottom: 20 }}>
-                <Label>Welcome Message</Label>
-                <Textarea name="welcomeMessage" className="input" rows={3} defaultValue={widget.welcomeMessage} />
-            </div>
+                <div style={{ marginBottom: 20 }}>
+                    <Label>Welcome Message</Label>
+                    <Textarea name="welcomeMessage" className="input" rows={3} defaultValue={widget.welcomeMessage} />
+                </div>
 
-            <div style={{ marginBottom: 20 }}>
-                <Label>System Prompt (Personality)</Label>
-                <Textarea name="systemPrompt" className="input" rows={5} defaultValue={widget.systemPrompt} />
-                <p style={{ fontSize: '0.8rem', color: 'var(--secondary)', marginTop: 8 }}>Define how the AI should behave.</p>
-            </div>
+                <div style={{ marginBottom: 20 }}>
+                    <Label>System Prompt (Personality)</Label>
+                    <Textarea name="systemPrompt" className="input" rows={5} defaultValue={widget.systemPrompt} />
+                    <p style={{ fontSize: '0.8rem', color: 'var(--secondary)', marginTop: 8 }}>Define how the AI should behave.</p>
+                </div>
 
-            <div className="grid-cols-2" style={{ marginBottom: 24 }}>
-                <div>
-                    <Label>Primary Color</Label>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                        <Input type="color" name="primaryColor" defaultValue={widget.primaryColor} style={{ width: 50, padding: 2, height: 40 }} />
-                        <Input name="primaryColor" defaultValue={widget.primaryColor} />
+                <div className="grid-cols-2" style={{ marginBottom: 24 }}>
+                    <div>
+                        <Label>Primary Color</Label>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                            <Input type="color" name="primaryColor" defaultValue={widget.primaryColor} style={{ width: 50, padding: 2, height: 40 }} />
+                            <Input name="primaryColor" defaultValue={widget.primaryColor} />
+                        </div>
+                    </div>
+                    <div>
+                        <Label>Secondary Color</Label>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                            <Input type="color" name="secondaryColor" defaultValue={widget.secondaryColor} style={{ width: 50, padding: 2, height: 40 }} />
+                            <Input name="secondaryColor" defaultValue={widget.secondaryColor} />
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <Label>Secondary Color</Label>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                        <Input type="color" name="secondaryColor" defaultValue={widget.secondaryColor} style={{ width: 50, padding: 2, height: 40 }} />
-                        <Input name="secondaryColor" defaultValue={widget.secondaryColor} />
-                    </div>
-                </div>
-            </div>
 
-            <Button type="submit">
-                <Save size={16} /> Save Changes
-            </Button>
-        </form>
+                <Button type="submit">
+                    <Save size={16} /> Save Changes
+                </Button>
+            </form>
+
+            <div style={{ marginTop: 40, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 24 }}>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#ef4444', marginBottom: 12 }}>Danger Zone</h3>
+                <p style={{ fontSize: '0.8rem', color: 'var(--secondary)', marginBottom: 16 }}>
+                    Once you delete a widget, there is no going back. Please be certain.
+                </p>
+                <form
+                    action={deleteWidget.bind(null, widget.id)}
+                    onSubmit={(e) => {
+                        if (!confirm('Are you absolutely sure you want to delete this widget? This action cannot be undone.')) {
+                            e.preventDefault();
+                        }
+                    }}
+                >
+                    <Button type="submit" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                        <Trash2 size={16} /> Delete Widget
+                    </Button>
+                </form>
+            </div>
+        </div>
     )
 }
 
