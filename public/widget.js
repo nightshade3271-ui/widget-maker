@@ -219,6 +219,8 @@
       try {
         const res = await fetch(`${API_BASE}/api/chat`, {
           method: 'POST',
+          mode: 'cors',
+          credentials: 'omit',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             widgetId,
