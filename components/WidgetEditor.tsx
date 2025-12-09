@@ -202,7 +202,7 @@ function FAQManager({ widgetId, faqs }: { widgetId: string, faqs: any[] }) {
 }
 
 function EmbedCode({ widgetId }: { widgetId: string }) {
-    const code = `<script src="${typeof window !== 'undefined' ? window.location.origin : ''}/widget.js" data-widget-id="${widgetId}" defer></script>`
+    const code = `<script src="https://widget-maker.vercel.app/widget.js" data-widget-id="${widgetId}" defer></script>`
 
     return (
         <div className="glass-panel fade-in" style={{ padding: 24 }}>
