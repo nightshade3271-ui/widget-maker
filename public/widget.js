@@ -171,6 +171,109 @@ if (!widgetId) {
       color: rgba(255,255,255,0.8);
       cursor: pointer;
     }
+    
+    /* Lead Capture Popup */
+    .wm-lead-popup {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      z-index: 1000;
+      width: 90%;
+      max-width: 320px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .wm-lead-popup.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .wm-lead-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .wm-lead-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .wm-lead-popup h4 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    .wm-lead-popup p {
+      margin: 0 0 20px;
+      font-size: 14px;
+      color: #64748b;
+    }
+    .wm-lead-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .wm-lead-input {
+      padding: 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      background: #ffffff !important;
+      color: #0f172a !important;
+    }
+    .wm-lead-input::placeholder {
+      color: #94a3b8 !important;
+    }
+    .wm-lead-input:focus {
+      border-color: #000;
+    }
+    .wm-lead-textarea {
+      min-height: 80px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    .wm-lead-submit {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #000;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .wm-lead-submit:hover {
+      opacity: 0.9;
+    }
+    .wm-lead-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .wm-lead-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
   `;
 
   // Inject Styles
@@ -246,6 +349,18 @@ if (!widgetId) {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${config.primaryColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
         </button>
       </div>
+      <div class="wm-lead-overlay"></div>
+      <div class="wm-lead-popup">
+        <button class="wm-lead-close">✕</button>
+        <h4 style="color: ${config.primaryColor}">${config.leadFormMessage || "Interested? Let's connect!"}</h4>
+        <p>Share your details and we'll get back to you!</p>
+        <form class="wm-lead-form">
+          <input type="text" class="wm-lead-input" name="name" placeholder="Your name" required />
+          <input type="email" class="wm-lead-input" name="email" placeholder="Your email" required />
+          <textarea class="wm-lead-input wm-lead-textarea" name="interest" placeholder="What are you interested in?" required></textarea>
+          <button type="submit" class="wm-lead-submit" style="background: ${config.primaryColor}">Send</button>
+        </form>
+      </div>
     `;
 
     container.appendChild(windowEl);
@@ -311,6 +426,19 @@ if (!widgetId) {
           localStorage.setItem(`wm_conversation_${widgetId}`, conversationId);
         }
 
+        // Check if lead collection is enabled and user hasn't submitted yet
+        if (config.enableLeadCollection !== false && !localStorage.getItem(`wm_lead_submitted_${widgetId}`)) {
+          // Detect interest keywords in user message or AI response
+          const interestKeywords = ['price', 'pricing', 'cost', 'how much', 'interested', 'quote', 'buy', 'purchase', 'get started', 'sign up', 'contact', 'demo', 'trial'];
+          const combinedText = (text + ' ' + data.content).toLowerCase();
+          const hasInterest = interestKeywords.some(keyword => combinedText.includes(keyword));
+
+          // Show popup after 3+ messages OR if interest detected
+          if (hasInterest || messages.length >= 6) {
+            setTimeout(() => showLeadPopup(), 1000);
+          }
+        }
+
       } catch (err) {
         console.error(err);
         removeMessage(loadingId);
@@ -348,5 +476,64 @@ if (!widgetId) {
       const el = document.getElementById(id);
       if (el) el.remove();
     }
+
+    // Lead Popup Logic
+    const leadPopup = windowEl.querySelector('.wm-lead-popup');
+    const leadOverlay = windowEl.querySelector('.wm-lead-overlay');
+    const leadForm = windowEl.querySelector('.wm-lead-form');
+    const leadCloseBtn = windowEl.querySelector('.wm-lead-close');
+
+    function showLeadPopup() {
+      leadPopup.classList.add('show');
+      leadOverlay.classList.add('show');
+    }
+
+    function hideLeadPopup() {
+      leadPopup.classList.remove('show');
+      leadOverlay.classList.remove('show');
+    }
+
+    leadCloseBtn.onclick = hideLeadPopup;
+    leadOverlay.onclick = hideLeadPopup;
+
+    leadForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(leadForm);
+      const submitBtn = leadForm.querySelector('.wm-lead-submit');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/leads`, {
+          method: 'POST',
+          mode: 'cors',
+          credentials: 'omit',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            widgetId,
+            name: formData.get('name'),
+            email: formData.get('email'),
+            interest: formData.get('interest'),
+            conversationId
+          })
+        });
+
+        if (res.ok) {
+          localStorage.setItem(`wm_lead_submitted_${widgetId}`, 'true');
+          submitBtn.textContent = 'Thank you!';
+          setTimeout(() => {
+            hideLeadPopup();
+            appendMessage('assistant', 'Thanks for sharing your details! We\'ll be in touch soon. 😊');
+          }, 1500);
+        } else {
+          throw new Error('Failed to submit');
+        }
+      } catch (err) {
+        console.error('Lead submission error:', err);
+        submitBtn.textContent = 'Try again';
+        submitBtn.disabled = false;
+      }
+    };
   }
 }

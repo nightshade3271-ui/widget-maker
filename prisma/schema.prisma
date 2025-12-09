@@ -9,19 +9,22 @@ generator client {
 }
 
 model Widget {
-  id            String   @id @default(cuid())
-  name          String
-  companyName   String   @default("My Company")
-  description   String?
-  welcomeMessage String  @default("Hello! How can I help you today?")
-  systemPrompt  String   @default("You are a helpful assistant.")
-  primaryColor  String   @default("#8b5cf6")
-  secondaryColor String  @default("#64748b")
-  ownerEmail    String?
-  avatarUrl     String?
+  id                  String   @id @default(cuid())
+  name                String
+  companyName         String   @default("My Company")
+  description         String?
+  welcomeMessage      String   @default("Hello! How can I help you today?")
+  systemPrompt        String   @default("You are a helpful assistant.")
+  primaryColor        String   @default("#8b5cf6")
+  secondaryColor      String   @default("#64748b")
+  ownerEmail          String?
+  avatarUrl           String?
+  enableLeadCollection Boolean @default(true)
+  leadFormMessage     String   @default("Interested? Let's connect!")
   
   faqs          FAQ[]
   conversations Conversation[]
+  leads         Lead[]
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -60,4 +63,16 @@ model SystemSettings {
   id             String @id @default("default")
   openRouterKey  String?
   defaultModel   String @default("google/gemini-2.0-flash-001")
+}
+
+model Lead {
+  id             String   @id @default(cuid())
+  widgetId       String
+  widget         Widget   @relation(fields: [widgetId], references: [id], onDelete: Cascade)
+  name           String
+  email          String
+  interest       String
+  conversationId String?
+  
+  createdAt      DateTime @default(now())
 }

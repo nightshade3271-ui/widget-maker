@@ -4,11 +4,11 @@ import React, { useState } from 'react'
 import { Button, Input, Label, Textarea } from '@/components/ui-elements'
 import { updateWidget, createFAQ, deleteFAQ, deleteWidget } from '@/lib/actions'
 import { Widget, FAQ } from '@prisma/client'
-import { Save, MessageSquare, Code, Settings, Trash2, BarChart } from 'lucide-react'
+import { Save, MessageSquare, Code, Settings, Trash2, BarChart, Users } from 'lucide-react'
 import clsx from 'clsx'
 
 export default function WidgetEditor({ widget, stats }: { widget: Widget & { faqs: FAQ[], avatarUrl?: string | null }, stats: any }) {
-    const [activeTab, setActiveTab] = useState<'settings' | 'faq' | 'embed' | 'analytics'>('settings')
+    const [activeTab, setActiveTab] = useState<'settings' | 'faq' | 'embed' | 'analytics' | 'leads'>('settings')
 
     return (
         <div>
@@ -22,6 +22,7 @@ export default function WidgetEditor({ widget, stats }: { widget: Widget & { faq
                     <TabButton active={activeTab === 'faq'} onClick={() => setActiveTab('faq')} icon={<MessageSquare size={16} />} label="Knowledge Base" />
                     <TabButton active={activeTab === 'embed'} onClick={() => setActiveTab('embed')} icon={<Code size={16} />} label="Install" />
                     <TabButton active={activeTab === 'analytics'} onClick={() => setActiveTab('analytics')} icon={<BarChart size={16} />} label="Analytics" />
+                    <TabButton active={activeTab === 'leads'} onClick={() => setActiveTab('leads')} icon={<Users size={16} />} label="Leads" />
                 </div>
             </div>
 
@@ -31,6 +32,7 @@ export default function WidgetEditor({ widget, stats }: { widget: Widget & { faq
                     {activeTab === 'faq' && <FAQManager widgetId={widget.id} faqs={widget.faqs} />}
                     {activeTab === 'embed' && <EmbedCode widgetId={widget.id} />}
                     {activeTab === 'analytics' && <AnalyticsView stats={stats} />}
+                    {activeTab === 'leads' && <LeadsView widgetId={widget.id} />}
                 </div>
 
                 {/* Live Preview */}
@@ -252,6 +254,76 @@ function AnalyticsView({ stats }: { stats: any }) {
                     </div>
                 ))}
             </div>
+        </div>
+    )
+}
+
+function LeadsView({ widgetId }: { widgetId: string }) {
+    const [leads, setLeads] = React.useState<any[]>([])
+    const [loading, setLoading] = React.useState(true)
+
+    React.useEffect(() => {
+        fetch(`/api/leads?widgetId=${widgetId}`)
+            .then(res => res.json())
+            .then(data => {
+                setLeads(data.leads || [])
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error('Failed to load leads:', err)
+                setLoading(false)
+            })
+    }, [widgetId])
+
+    if (loading) {
+        return (
+            <div className="glass-panel fade-in" style={{ padding: 24, textAlign: 'center' }}>
+                <p style={{ color: 'var(--secondary)' }}>Loading leads...</p>
+            </div>
+        )
+    }
+
+    return (
+        <div className="glass-panel fade-in" style={{ padding: 24 }}>
+            <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <h3 style={{ fontSize: '1.2rem', marginBottom: 4 }}>Captured Leads</h3>
+                    <p style={{ color: 'var(--secondary)', fontSize: '0.9rem' }}>Contact information collected from conversations</p>
+                </div>
+                <div className="badge" style={{ background: 'rgba(139, 92, 246, 0.2)', color: '#a78bfa', padding: '8px 16px', borderRadius: 8, fontSize: '1rem', fontWeight: 600 }}>
+                    {leads.length} {leads.length === 1 ? 'lead' : 'leads'}
+                </div>
+            </div>
+
+            {leads.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 40, color: 'var(--secondary)' }}>
+                    <Users size={48} style={{ opacity: 0.3, marginBottom: 16 }} />
+                    <p>No leads captured yet.</p>
+                    <p style={{ fontSize: '0.9rem', marginTop: 8 }}>Leads will appear here when visitors show interest and fill out the form.</p>
+                </div>
+            ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {leads.map((lead: any) => (
+                        <div key={lead.id} style={{ padding: 20, border: '1px solid var(--surface-border)', borderRadius: 12, background: 'rgba(255,255,255,0.02)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 12 }}>
+                                <div>
+                                    <div style={{ fontWeight: 600, fontSize: '1.1rem', marginBottom: 4 }}>{lead.name}</div>
+                                    <a href={`mailto:${lead.email}`} style={{ color: '#a78bfa', fontSize: '0.9rem', textDecoration: 'none' }}>
+                                        {lead.email}
+                                    </a>
+                                </div>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--secondary)' }}>
+                                    {new Date(lead.createdAt).toLocaleDateString()} at {new Date(lead.createdAt).toLocaleTimeString()}
+                                </div>
+                            </div>
+                            <div style={{ background: 'rgba(0,0,0,0.2)', padding: 12, borderRadius: 8, marginTop: 12 }}>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--secondary)', marginBottom: 4 }}>Interest:</div>
+                                <div style={{ color: '#e2e8f0' }}>{lead.interest}</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     )
 }
