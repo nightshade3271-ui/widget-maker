@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui-elements'
 
+export const dynamic = 'force-dynamic'
+
 export default async function DashboardPage() {
     const widgets = await db.widget.findMany({
         orderBy: { createdAt: 'desc' }

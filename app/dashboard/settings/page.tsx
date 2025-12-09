@@ -3,6 +3,8 @@ import { Button, Input, Label } from '@/components/ui-elements'
 import { ArrowLeft, Settings as SettingsIcon, BarChart } from 'lucide-react'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 export default async function SettingsPage() {
     const settings = await getSystemSettings()
 
