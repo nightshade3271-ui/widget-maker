@@ -22,12 +22,18 @@ export async function createWidget(formData: FormData): Promise<void> {
 
 export async function updateWidget(id: string, formData: FormData) {
     const data: any = {}
-    const fields = ['name', 'companyName', 'description', 'welcomeMessage', 'systemPrompt', 'primaryColor', 'secondaryColor', 'avatarUrl']
+    const fields = ['name', 'companyName', 'description', 'welcomeMessage', 'systemPrompt', 'primaryColor', 'secondaryColor', 'avatarUrl', 'leadFormMessage', 'leadKeywords']
 
     fields.forEach(field => {
         const value = formData.get(field)
         if (value !== null) data[field] = value
     })
+
+    // Handle number field
+    const leadMessageThreshold = formData.get('leadMessageThreshold')
+    if (leadMessageThreshold !== null) {
+        data.leadMessageThreshold = parseInt(leadMessageThreshold as string, 10)
+    }
 
     await db.widget.update({
         where: { id },

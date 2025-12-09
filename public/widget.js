@@ -428,13 +428,18 @@ if (!widgetId) {
 
         // Check if lead collection is enabled and user hasn't submitted yet
         if (config.enableLeadCollection !== false && !localStorage.getItem(`wm_lead_submitted_${widgetId}`)) {
-          // Detect interest keywords in user message or AI response
-          const interestKeywords = ['price', 'pricing', 'cost', 'how much', 'interested', 'quote', 'buy', 'purchase', 'get started', 'sign up', 'contact', 'demo', 'trial'];
+          // Get keywords from config (comma-separated string) or use defaults
+          const keywordsString = config.leadKeywords || 'price,pricing,cost,how much,interested,quote,buy,purchase,get started,sign up,contact,demo,trial';
+          const interestKeywords = keywordsString.split(',').map(k => k.trim().toLowerCase());
+
           const combinedText = (text + ' ' + data.content).toLowerCase();
           const hasInterest = interestKeywords.some(keyword => combinedText.includes(keyword));
 
-          // Show popup after 3+ messages OR if interest detected
-          if (hasInterest || messages.length >= 6) {
+          // Get threshold from config or use default
+          const threshold = config.leadMessageThreshold || 6;
+
+          // Show popup if interest detected OR message count reached
+          if (hasInterest || messages.length >= threshold) {
             setTimeout(() => showLeadPopup(), 1000);
           }
         }

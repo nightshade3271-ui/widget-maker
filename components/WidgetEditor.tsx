@@ -141,6 +141,28 @@ function SettingsForm({ widget }: { widget: any }) {
                     </div>
                 </div>
 
+                <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: 16 }}>Lead Capture Settings</h3>
+
+                    <div style={{ marginBottom: 20 }}>
+                        <Label>Lead Popup Message</Label>
+                        <Input name="leadFormMessage" defaultValue={widget.leadFormMessage} placeholder="Interested? Let's connect!" />
+                        <p style={{ fontSize: '0.8rem', color: 'var(--secondary)', marginTop: 8 }}>Message shown in the lead capture popup.</p>
+                    </div>
+
+                    <div style={{ marginBottom: 20 }}>
+                        <Label>Trigger Keywords (comma-separated)</Label>
+                        <Textarea name="leadKeywords" className="input" rows={2} defaultValue={widget.leadKeywords} placeholder="price,pricing,cost,interested,quote" />
+                        <p style={{ fontSize: '0.8rem', color: 'var(--secondary)', marginTop: 8 }}>Popup appears when user or AI mentions these words.</p>
+                    </div>
+
+                    <div style={{ marginBottom: 20 }}>
+                        <Label>Message Count Trigger</Label>
+                        <Input type="number" name="leadMessageThreshold" defaultValue={widget.leadMessageThreshold} min="1" max="20" />
+                        <p style={{ fontSize: '0.8rem', color: 'var(--secondary)', marginTop: 8 }}>Show popup after this many messages (even without keywords).</p>
+                    </div>
+                </div>
+
                 <Button type="submit">
                     <Save size={16} /> Save Changes
                 </Button>

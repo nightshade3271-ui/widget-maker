@@ -21,6 +21,8 @@ model Widget {
   avatarUrl           String?
   enableLeadCollection Boolean @default(true)
   leadFormMessage     String   @default("Interested? Let's connect!")
+  leadKeywords        String   @default("price,pricing,cost,how much,interested,quote,buy,purchase,get started,sign up,contact,demo,trial")
+  leadMessageThreshold Int     @default(6)
   
   faqs          FAQ[]
   conversations Conversation[]
