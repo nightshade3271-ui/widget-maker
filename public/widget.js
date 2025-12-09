@@ -31,9 +31,15 @@ if (!widgetId) {
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       transition: transform 0.2s;
+      overflow: hidden; /* For image */
     }
     .wm-launcher:hover {
       transform: scale(1.05);
+    }
+    .wm-launcher img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     .wm-chat-window {
       position: absolute;
@@ -73,26 +79,59 @@ if (!widgetId) {
       flex-direction: column;
       gap: 12px;
     }
+    
+    /* Message Wrappers for Avatar Layout */
+    .wm-message-wrap {
+      display: flex;
+      gap: 8px;
+      max-width: 85%;
+    }
+    .wm-message-wrap.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+    .wm-message-wrap.assistant {
+      align-self: flex-start;
+    }
+    
+    .wm-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #ccc;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: white;
+      overflow: hidden;
+    }
+    .wm-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
     .wm-message {
       padding: 10px 14px;
       border-radius: 12px;
-      max-width: 85%;
       font-size: 14px;
       line-height: 1.5;
+      word-wrap: break-word;
     }
     .wm-message.user {
-      align-self: flex-end;
       background: #000 !important;
       color: #fff !important;
       border-bottom-right-radius: 2px;
     }
     .wm-message.assistant {
-      align-self: flex-start;
       background: #fff !important;
       color: #334155 !important;
       border: 1px solid #e2e8f0;
       border-bottom-left-radius: 2px;
     }
+
     .wm-input-area {
       padding: 16px;
       background: #fff;
@@ -170,7 +209,21 @@ if (!widgetId) {
     const launcher = document.createElement('div');
     launcher.className = 'wm-launcher';
     launcher.style.background = config.primaryColor;
-    launcher.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`;
+
+    if (config.avatarUrl) {
+      launcher.innerHTML = `<img src="${config.avatarUrl}" alt="Chat">`;
+      launcher.style.background = 'none';
+    } else {
+      launcher.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`;
+    }
+
+    // Avatar HTML helper
+    const getAvatarHtml = () => {
+      if (config.avatarUrl) {
+        return `<div class="wm-avatar"><img src="${config.avatarUrl}"></div>`;
+      }
+      return `<div class="wm-avatar" style="background: ${config.primaryColor}">AI</div>`;
+    };
 
     // Window
     const windowEl = document.createElement('div');
@@ -182,7 +235,10 @@ if (!widgetId) {
         <button class="wm-close">✕</button>
       </div>
       <div class="wm-messages">
-        <div class="wm-message assistant">${config.welcomeMessage}</div>
+        <div class="wm-message-wrap assistant">
+            ${getAvatarHtml()}
+            <div class="wm-message assistant">${config.welcomeMessage}</div>
+        </div>
       </div>
       <div class="wm-input-area">
         <input class="wm-input" placeholder="Type a message..." />
@@ -245,8 +301,7 @@ if (!widgetId) {
         const data = await res.json();
 
         // Remove loading and add actual message
-        const loadingEl = document.getElementById(loadingId);
-        if (loadingEl) loadingEl.remove(); // Or replace content
+        removeMessage(loadingId);
 
         appendMessage('assistant', data.content);
         messages.push({ role: 'assistant', content: data.content });
@@ -258,6 +313,7 @@ if (!widgetId) {
 
       } catch (err) {
         console.error(err);
+        removeMessage(loadingId);
         appendMessage('assistant', 'Sorry, something went wrong.');
       }
     }
@@ -268,14 +324,29 @@ if (!widgetId) {
     };
 
     function appendMessage(role, text) {
-      const msg = document.createElement('div');
-      msg.className = `wm-message ${role}`;
-      msg.textContent = text;
+      const wrap = document.createElement('div');
+      wrap.className = `wm-message-wrap ${role}`;
+      // ID for removal
       const id = 'msg-' + Math.random().toString(36).substr(2, 9);
-      msg.id = id;
-      messagesContainer.appendChild(msg);
+      wrap.id = id;
+
+      let html = '';
+      if (role === 'assistant') {
+        html += getAvatarHtml();
+      }
+
+      html += `<div class="wm-message ${role}">${text}</div>`;
+
+      wrap.innerHTML = html;
+
+      messagesContainer.appendChild(wrap);
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
       return id;
+    }
+
+    function removeMessage(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
     }
   }
 }

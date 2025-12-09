@@ -1,0 +1,18 @@
+https://nextjs.org/telemetry
+   ▲ Next.js 16.0.7 (Turbopack)
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 5.4s
+   Running TypeScript ...
+Failed to compile.
+./prisma.config.ts:4:35
+Type error: Cannot find module 'prisma/config' or its corresponding type declarations.
+  2 | // npm install --save-dev prisma dotenv
+  3 | import "dotenv/config";
+> 4 | import { defineConfig, env } from "prisma/config";
+    |                                   ^
+  5 |
+  6 | export default defineConfig({
+  7 |   schema: "prisma/schema.prisma",
+Next.js build worker exited with code: 1 and signal: null
+Error: Command "npm run build" exited with 1
+Deployment Summary

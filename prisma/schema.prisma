@@ -18,6 +18,7 @@ model Widget {
   primaryColor  String   @default("#8b5cf6")
   secondaryColor String  @default("#64748b")
   ownerEmail    String?
+  avatarUrl     String?
   
   faqs          FAQ[]
   conversations Conversation[]

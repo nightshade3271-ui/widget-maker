@@ -7,7 +7,7 @@ import { Widget, FAQ } from '@prisma/client'
 import { Save, MessageSquare, Code, Settings, Trash2, BarChart } from 'lucide-react'
 import clsx from 'clsx'
 
-export default function WidgetEditor({ widget, stats }: { widget: Widget & { faqs: FAQ[] }, stats: any }) {
+export default function WidgetEditor({ widget, stats }: { widget: Widget & { faqs: FAQ[], avatarUrl?: string | null }, stats: any }) {
     const [activeTab, setActiveTab] = useState<'settings' | 'faq' | 'embed' | 'analytics'>('settings')
 
     return (
@@ -50,7 +50,11 @@ export default function WidgetEditor({ widget, stats }: { widget: Widget & { faq
                         {/* Messages */}
                         <div style={{ padding: 16, height: 'calc(100% - 130px)', background: '#f8fafc', overflowY: 'auto' }}>
                             <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-                                <div style={{ width: 32, height: 32, borderRadius: '50%', background: widget.primaryColor, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 12 }}>AI</div>
+                                {widget.avatarUrl ? (
+                                    <img src={widget.avatarUrl} style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} alt="AI" />
+                                ) : (
+                                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: widget.primaryColor, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 12 }}>AI</div>
+                                )}
                                 <div style={{ background: 'white', padding: '12px 16px', borderRadius: '0 12px 12px 12px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', maxWidth: '85%', color: '#334155', fontSize: 14 }}>
                                     {widget.welcomeMessage}
                                 </div>
@@ -100,6 +104,11 @@ function SettingsForm({ widget }: { widget: any }) {
                 <div style={{ marginBottom: 20 }}>
                     <Label>Company Name</Label>
                     <Input name="companyName" defaultValue={widget.companyName} />
+                </div>
+
+                <div style={{ marginBottom: 20 }}>
+                    <Label>Avatar URL (Image)</Label>
+                    <Input name="avatarUrl" defaultValue={widget.avatarUrl} placeholder="https://example.com/avatar.png" />
                 </div>
 
                 <div style={{ marginBottom: 20 }}>

@@ -22,7 +22,7 @@ export async function createWidget(formData: FormData): Promise<void> {
 
 export async function updateWidget(id: string, formData: FormData) {
     const data: any = {}
-    const fields = ['name', 'companyName', 'description', 'welcomeMessage', 'systemPrompt', 'primaryColor', 'secondaryColor']
+    const fields = ['name', 'companyName', 'description', 'welcomeMessage', 'systemPrompt', 'primaryColor', 'secondaryColor', 'avatarUrl']
 
     fields.forEach(field => {
         const value = formData.get(field)

@@ -15,6 +15,7 @@ export async function GET(
             welcomeMessage: true,
             primaryColor: true,
             secondaryColor: true,
+            avatarUrl: true,
             // Do not expose systemPrompt or ownerEmail
         }
     })

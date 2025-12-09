@@ -1,0 +1,11 @@
+How to run it while developing: If you want to keep coding and see the changes in the desktop app window instead of the browser, run this command in your terminal:
+
+bash
+npm run electron-dev
+How to build a new version: If you make changes and want to create a new installer for yourself or others, run:
+
+bash
+npm run pack-app
+(This will create a new 
+.exe
+ in the dist folder).
